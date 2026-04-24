@@ -1,4 +1,4 @@
-const prisma = require("../db/prisma");
+const prisma = require("../db/prismaClient");
 const { triageBug } = require("../services/claudeService");
 
 // POST /api/bugs — submit a bug and trigger AI triage
@@ -14,7 +14,7 @@ async function submitBug(req, res) {
 
     // Save bug to DB first
     const bug = await prisma.bug.create({
-      data: { title, description, submittedBy: submittedBy || null },
+      data: { title, description, reporter: submittedBy || null },
     });
 
     // Call Claude for triage
@@ -25,11 +25,11 @@ async function submitBug(req, res) {
       where: { id: bug.id },
       data: {
         severity: triage.severity,
-        category: triage.category,
+        // category: triage.category,
         rootCause: triage.rootCause,
-        suggestedFix: triage.suggestedFix,
+        suggestion: triage.suggestedFix,
         testCases: JSON.stringify(triage.testCases),
-        triaged: true,
+        // triaged: true,
       },
     });
 
